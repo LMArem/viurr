@@ -1,8 +1,16 @@
-export enum Quality {
-  '1080p' = 's1080p',
-  '720p' = 's720p',
-  '480p' = 's480p',
-  '240p' = 's240p'
-}
+import debugFactory from 'debug';
 
-export type QualityChoice = keyof typeof Quality;
+const debug = debugFactory('viurr:config');
+
+const { FFMPEG_PATH, FFPROBE_PATH } = process.env;
+
+const config = {
+  executables: {
+    ffmpeg: FFMPEG_PATH || 'ffmpeg',
+    ffprobe: FFPROBE_PATH || 'ffprobe'
+  }
+};
+
+debug(config);
+
+export default config;

@@ -1,15 +1,15 @@
-import * as download from '../../../../lib/download';
-import {CommandArguments} from '../builder';
+import { ICommandArguments } from '../builder';
+import * as download from '../../../../download';
 
-export {CommandArguments as Options};
+export type Options = ICommandArguments;
 
-export const command = 'cover <productId> <filePathTemplate>';
+export const command = 'cover <productId> [filepath]';
 
 export const describe = 'Download cover image of an episode';
 
-export const handler = async (argv: CommandArguments) => {
-  const {productId, filePathTemplate} = argv;
-  console.info(`Downloading cover image of "${productId}"`);
-  const filePath = await download.cover(productId, filePathTemplate);
-  console.info(`Finished : ${filePath}`);
+export const handler = async (argv: ICommandArguments): Promise<void> => {
+  const { productId, filepath } = argv;
+  const [series, episode, _filepath] = await download.cover(productId, filepath);
+  console.info(`Downloading cover image of "${series.title}" EP.${episode.number} "${episode.title}"`);
+  console.info(`Downloaded: ${_filepath}`);
 };

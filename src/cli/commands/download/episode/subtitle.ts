@@ -1,39 +1,38 @@
-import {chain} from 'lodash';
-import yargs from 'yargs';
-import * as download from '../../../../lib/download';
-import {CommandArguments} from '../builder';
+import { Argv } from 'yargs';
+import { ICommandArguments } from '../builder';
+import * as download from '../../../../download';
+import { LanguageFlag } from '../../../../types/viu.types';
 
-export interface Options extends CommandArguments {
-  language: string[];
+export interface IOptions extends ICommandArguments {
+  language: LanguageFlag;
 }
 
-export const command = 'subtitle <productId> <filePathTemplate>';
+export const command = 'subtitle <productId> [filepath]';
 
 export const describe = 'Download subtitle(s) of an episode';
 
 const description = [
   'Subtitle language',
   '[1 : Chinese (Traditional)]',
+  '[3 : English]',
+  '[7 : Indonesian]',
+  '[8 : Thai]',
   ''
 ];
 
-export const builder = (yargs: yargs.Argv) => (
+export const builder = (yargs: Argv): Argv => (
   yargs
     .option('language', {
-      array: true,
       string: true,
-      choices: ['1'], // TODO: find more available choices
-      default: ['1'],
-      coerce: value => chain(value).compact().uniq().value(),
+      choices: Object.values(LanguageFlag),
+      default: '1',
       description: description.join('\n')
     })
 );
 
-export const handler = async (argv: Options) => {
-  const {productId, filePathTemplate, language: languageIds} = argv;
-  for (const languageId of languageIds) {
-    console.info(`Downloading subtitle of "${productId}" (Language ID : ${languageId})`);
-    const filePath = await download.subtitle(productId, filePathTemplate, languageId);
-    console.info(`Finished : ${filePath}`);
-  }
+export const handler = async (argv: IOptions): Promise<void> => {
+  const { productId, filepath, language: languageId } = argv;
+  const [series, episode, _filepath] = await download.subtitle(productId, filepath, languageId);
+  console.info(`Downloading subtitle of "${series.title}" EP.${episode.number} "${episode.title}" (Language ID: ${languageId})`);
+  console.info(`Downloaded: ${_filepath}`);
 };
